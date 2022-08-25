@@ -23,15 +23,15 @@ class ALLLIGHT(DMXDevice):
             return
         self.channels.append(id)
 
-    def fadeIn(self, interval=2.0):
+    def fadeIn(self, interval=2.0, delay=1.0):
         self.light = True
-        self.start_time = time.time()
+        self.start_time = time.time() + delay
         self.end_time = self.start_time + interval
         self.priv_fade = self.fade
 
-    def fadeOut(self, interval=2.0):
+    def fadeOut(self, interval=2.0, delay=1.0):
         self.light = False
-        self.start_time = time.time()
+        self.start_time = time.time() + delay
         self.end_time = self.start_time + interval
         self.priv_fade = self.fade
 
