@@ -1,0 +1,9 @@
+{
+    "hw": {
+        "show_dev": false,
+        "url": "ftdi://ftdi:232:AB0OXCQ4/1"
+    },
+    "http": {
+        "port": 8080
+    }
+}
