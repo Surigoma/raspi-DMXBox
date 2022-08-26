@@ -55,7 +55,7 @@ def set_default_delay(delay: float):
     return {}
 
 @api_app.post("/config/save")
-def set_default_delay(delay: float):
+def set_default_delay():
     config_data.save()
     return {}
 
