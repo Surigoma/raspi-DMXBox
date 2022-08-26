@@ -55,7 +55,7 @@ if __name__ == '__main__':
         if pipe_serial_p.poll():
             message = pipe_serial_p.recv()
             transportMessage(message)
-        time.sleep(0.001)
+        time.sleep(0.01)
 
     p_dmx.join()
     p_rest.join()
@@ -63,9 +63,3 @@ if __name__ == '__main__':
     pipe_dmx_p.close()
     pipe_rest_p.close()
     pipe_serial_p.close()
-
-    exit(0)
-
-    while running:
-        if pipe_rest_p.poll():
-            pass
