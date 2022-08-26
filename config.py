@@ -8,4 +8,4 @@ class config:
 
     def save(self, path = "./config.json"):
         with open(path, mode="w") as f:
-            f.write(json.dump(self.config))
+            f.write(json.dumps(self.config))
