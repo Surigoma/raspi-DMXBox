@@ -17,11 +17,9 @@ class ALLLIGHT(DMXDevice):
     priv_fade = 0
     interval = 2
     delay = 0
-    config = None
 
-    def __init__(self, name, c):
+    def __init__(self, name):
         super().__init__(name, 1, num_chans=512)
-        self.config = c
 
     def addChannel(self, id):
         if id in self.channels:
@@ -46,12 +44,10 @@ class ALLLIGHT(DMXDevice):
 
     def setDefaultInterval(self, interval):
         self.interval = interval
-        self.config.config["dmx"]["fadeInterval"] = interval
         return
 
     def setDefaultDelay(self, delay):
         self.delay = delay
-        self.config.config["dmx"]["delay"] = delay
         return
 
     def update(self, dmx):
@@ -64,6 +60,11 @@ class ALLLIGHT(DMXDevice):
             max = self.channel_max[str(i)] if str(i) in self.channel_max else 255
             dmx.set_float(self.chan_no, i, self.fade, 0, max)
 
+    def updateChannel(self, channels):
+        self.channels.clear()
+        for c in channels:
+            if c >= 1 and c <= 512:
+                self.channels.append(c)
 
 dmx: DMXUniverse = None
 fixture: ALLLIGHT = None
@@ -95,25 +96,29 @@ def decode_message(message):
         fixture.fadeOut(interval, delay)
     elif message["method"] == "updateChannel":
         if not "param" in message:
-        return
+            return
         fixture.updateChannel(message["param"])
     elif message["method"] == "setDefaultInterval":
         if not "param" in message:
-        return
+            return
         fixture.setDefaultInterval(message["param"])
     elif message["method"] == "setDefaultDelay":
         if not "param" in message:
-        return
+            return
         fixture.setDefaultDelay(message["param"])
+    elif message["method"] == "setChannel":
+        if not "param" in message:
+            return
+        fixture.updateChannel(message["param"])
     pass
 
 def start_dmx(pipe: Pipe, config: config):
     global dmx, fixture, running
     dmx = DMXUniverse(url=config.config["hw"]["url"] if config.config["hw"]["url"] else "ftdi://ftdi:232:AB0OXCQ4/1")
-    fixture = ALLLIGHT("alllight", config)
+    fixture = ALLLIGHT("alllight")
     if "target_ch" in config.config["dmx"]:
         for i in config.config["dmx"]["target_ch"]:
-        fixture.addChannel(i)
+            fixture.addChannel(i)
     if "target_max" in config.config["dmx"]:
         for k, v in config.config["dmx"]["target_max"].items():
             fixture.channel_max[k] = v

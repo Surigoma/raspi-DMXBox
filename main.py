@@ -5,6 +5,7 @@ from multiprocessing import Process, Pipe, Array
 from config import config
 import json
 import time
+from util import *
 
 def logmsg(message): print("[main]" + message)
 
@@ -16,16 +17,12 @@ def transportMessage(message):
     global pipe_dmx_p, pipe_rest_p, pipe_serial_p
     if not "to" in message and "body" in message:
         logmsg("unknown message." + json.dumps(message))
-        return
-    if pipe_dmx_p != None and message["to"] == "dmx":
+    elif pipe_dmx_p != None and message["to"] == "dmx":
         pipe_dmx_p.send(message["body"])
-        return
-    if pipe_rest_p != None and message["to"] == "rest":
+    elif pipe_rest_p != None and message["to"] == "rest":
         pipe_rest_p.send(message["body"])
-        return
-    if pipe_serial_p != None and message["to"] == "serial":
+    elif pipe_serial_p != None and message["to"] == "serial":
         pipe_serial_p.send(message["body"])
-        return
     return
 
 if __name__ == '__main__':

@@ -1,10 +1,12 @@
 #!/usr/bin/python
 import uvicorn
-from fastapi import FastAPI
+from typing import List
+from fastapi import FastAPI, Form
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 from config import config
 from multiprocessing import Pipe
+from util import *
 
 app = FastAPI(title="Static")
 api_app = FastAPI(title="REST API")
@@ -14,48 +16,69 @@ app.mount("/", StaticFiles(directory="static", html=True), name="static")
 pipe = None
 config_data = None
 
-def sendto_dmx(message):
-    global pipe
-    if pipe == None: return
-    pipe.send({"to":"dmx", "body":message})
-
-def sendto_serial(message):
-    global pipe
-    if pipe == None: return
-    pipe.send({"to":"serial", "body":message})
-
 @api_app.get("/fadeIn")
 def get_fadeIn(interval:float = None, delay:float = None):
+    global pipe
     message = {"method": "fadeIn", "param": {}}
     if interval != None:
         message["param"]["interval"] = interval
     if delay != None:
         message["param"]["delay"] = delay
-    sendto_dmx(message)
+    sendto_dmx(pipe, message)
     return {}
 
 @api_app.get("/fadeOut")
 def get_fadeOut(interval:float = None, delay:float = None):
+    global pipe
     message = {"method": "fadeOut", "param": {}}
     if interval != None:
         message["param"]["interval"] = interval
     if delay != None:
         message["param"]["delay"] = delay
-    sendto_dmx(message)
+    sendto_dmx(pipe, message)
     return {}
 
 @api_app.post("/config/setDefalutInterval")
-def set_default_interval(interval: float):
-    sendto_dmx({"method": "setDefaultInterval", "param": interval})
+def set_default_interval(interval: float = Form()):
+    global pipe, config_data
+    sendto_dmx(pipe, {"method": "setDefaultInterval", "param": interval})
+    config_data.config["dmx"]["fadeInterval"] = interval
     return {}
 
 @api_app.post("/config/setDefaultDelay")
-def set_default_delay(delay: float):
-    sendto_dmx({"method": "setDefaultDelay", "param": delay})
+def set_default_delay(delay: float = Form()):
+    global pipe, config_data
+    sendto_dmx(pipe, {"method": "setDefaultDelay", "param": delay})
+    config_data.config["dmx"]["delay"] = delay
     return {}
 
+class channels(BaseModel):
+    channels: List[int]
+
+@api_app.post("/config/setChannel")
+def set_channels(channels: channels):
+    global pipe, config_data
+    sendto_dmx(pipe, {"method": "setChannel", "param": channels.channels})
+    config_data.config["dmx"]["target_ch"] = channels.channels
+    return {}
+
+@api_app.get("/config/channels")
+def get_channels():
+    global config_data
+    return config_data.config["dmx"]["target_ch"]
+
+@api_app.get("/config/interval")
+def get_interval():
+    global config_data
+    return config_data.config["dmx"]["fadeInterval"]
+
+@api_app.get("/config/delay")
+def get_delay():
+    global config_data
+    return config_data.config["dmx"]["delay"]
+
 @api_app.post("/config/save")
-def set_default_delay():
+def save_config():
     config_data.save()
     return {}
 

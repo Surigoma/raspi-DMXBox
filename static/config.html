@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="color-scheme" content="dark">
+    <link href="./css/bootstrap-dark.min.css" rel="stylesheet" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link href="./css/raspi-dmxbox.css" rel="stylesheet">
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/raspi-dmxbox.js"></script>
+    <title>raspi-DMXBox</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">raspi-DMXBox</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" rel="noopener noreferrer">Config</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/docs" target="_blank" rel="noopener noreferrer">API <i class="bi bi-box-arrow-up-right"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="d-grid m-5">
+            <label for="channels" class="form-label">出力チャンネル</label>
+            <select class="form-select" id="channels" name="channels[]" multiple data-allow-clear="true" data-allow-new="true" data-regex="[0-9]+">
+                <option disabled hidden value="">チャンネルを入力してください...</option>
+            </select>
+            <div class="invalid-feedback">正しいチャンネルを指定してください。</div>
+            <button class="btn btn-primary btn-primary my-1" type="button" onclick="postChannel();">チャンネル保存</button>
+        </div>
+        <div class="d-grid m-5">
+            <label for="channels" class="form-label">フェード時間</label>
+            <div class="input-group mb-3">
+                <input id="fadespeed" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadespeed-addon">
+                <span class="input-group-text" id="fadespeed-addon">秒</span>
+            </div>
+            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post("./api/config/setDefalutInterval", {interval: $("#fadespeed").val()});'>フェード時間保存</button>
+        </div>
+        <div class="d-grid m-5">
+            <label for="channels" class="form-label">ディレイ</label>
+            <div class="input-group mb-3">
+                <input id="fadedelay" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadedelay-addon">
+                <span class="input-group-text" id="fadedelay-addon">秒</span>
+            </div>
+            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post("./api/config/setDefaultDelay", {delay: $("#fadedelay").val()});'>ディレイ保存</button>
+        </div>
+        <div class="d-grid m-5">
+            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post_json("./api/config/save", {});'>コンフィグ保存</button>
+        </div>
+    </div>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import Tags from "./js/tags.min.js";
+        Tags.init();
+        var channels = Tags.getInstance($("#channels")[0])
+        jQuery.get("./api/config/channels", (data)=>{
+            $.each(data, (i, v)=>{
+                channels.addItem(v);
+            });
+        });
+        jQuery.get("./api/config/interval", (data)=>{
+            $("#fadespeed").val(data);
+        });
+        jQuery.get("./api/config/delay", (data)=>{
+            $("#fadedelay").val(data);
+        });
+    </script>
+</body>
+
+</html>
