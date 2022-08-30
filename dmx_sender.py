@@ -58,6 +58,7 @@ class ALLLIGHT(DMXDevice):
         self.fade = np.clip(self.priv_fade + (per if self.light else -per), 0.0, 1.0)
         for i in self.channels:
             max = self.channel_max[str(i)] if str(i) in self.channel_max else 255
+            max = max if max > 0 else 1
             dmx.set_float(self.chan_no, i, self.fade, 0, max)
 
     def updateChannel(self, channels):
@@ -65,6 +66,13 @@ class ALLLIGHT(DMXDevice):
         for c in channels:
             if c >= 1 and c <= 512:
                 self.channels.append(c)
+
+    def updateChannelMax(self, fadeMaxs):
+        self.channel_max.clear()
+        for k, v in fadeMaxs.items():
+            k_i = int(k)
+            if k_i >= 1 and k_i <= 512:
+                self.channel_max[k] = v
 
 dmx: DMXUniverse = None
 fixture: ALLLIGHT = None
@@ -110,6 +118,10 @@ def decode_message(message):
         if not "param" in message:
             return
         fixture.updateChannel(message["param"])
+    elif message["method"] == "setTargetMax":
+        if not "param" in message:
+            return
+        fixture.updateChannelMax(message["param"])
     pass
 
 def start_dmx(pipe: Pipe, config: config):

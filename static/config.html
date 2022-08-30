@@ -44,7 +44,7 @@
                 <option disabled hidden value="">チャンネルを入力してください...</option>
             </select>
             <div class="invalid-feedback">正しいチャンネルを指定してください。</div>
-            <button class="btn btn-primary btn-primary my-1" type="button" onclick="postChannel();">チャンネル保存</button>
+            <button class="btn btn-secondary my-1" type="button" onclick="postChannel();">チャンネル保存</button>
         </div>
         <div class="d-grid m-5">
             <label for="channels" class="form-label">フェード時間</label>
@@ -52,7 +52,7 @@
                 <input id="fadespeed" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadespeed-addon">
                 <span class="input-group-text" id="fadespeed-addon">秒</span>
             </div>
-            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post("./api/config/setDefalutInterval", {interval: $("#fadespeed").val()});'>フェード時間保存</button>
+            <button class="btn btn-secondary my-1" type="button" onclick='API_post("./api/config/setDefalutInterval", {interval: $("#fadespeed").val()});'>フェード時間保存</button>
         </div>
         <div class="d-grid m-5">
             <label for="channels" class="form-label">ディレイ</label>
@@ -60,28 +60,24 @@
                 <input id="fadedelay" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadedelay-addon">
                 <span class="input-group-text" id="fadedelay-addon">秒</span>
             </div>
-            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post("./api/config/setDefaultDelay", {delay: $("#fadedelay").val()});'>ディレイ保存</button>
+            <button class="btn btn-secondary my-1" type="button" onclick='API_post("./api/config/setDefaultDelay", {delay: $("#fadedelay").val()});'>ディレイ保存</button>
+        </div>
+        <div class="d-grid mx-5">
+            <label for="channels" class="form-label">チャンネルごとの最大値</label>
+            <div class="d-grid mb-5" id="ranges">
+            </div>
+            <button class="btn btn-secondary my-1" type="button" onclick='postFadeMax();'>最大値保存</button>
         </div>
         <div class="d-grid m-5">
-            <button class="btn btn-primary btn-primary my-1" type="button" onclick='API_post_json("./api/config/save", {});'>コンフィグ保存</button>
+            <button class="btn btn-primary my-1" type="button" onclick='API_post_json("./api/config/save", {});'>コンフィグ保存</button>
         </div>
     </div>
     <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/raspi-dmxbox.js"></script>
     <script type="module">
         import Tags from "./js/tags.min.js";
         Tags.init();
-        var channels = Tags.getInstance($("#channels")[0])
-        jQuery.get("./api/config/channels", (data)=>{
-            $.each(data, (i, v)=>{
-                channels.addItem(v);
-            });
-        });
-        jQuery.get("./api/config/interval", (data)=>{
-            $("#fadespeed").val(data);
-        });
-        jQuery.get("./api/config/delay", (data)=>{
-            $("#fadedelay").val(data);
-        });
+        loadConfig(Tags);
     </script>
 </body>
 

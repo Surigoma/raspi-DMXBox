@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import uvicorn
-from typing import List
+from typing import List, Dict
 from fastapi import FastAPI, Form
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -62,6 +62,16 @@ def set_channels(channels: channels):
     config_data.config["dmx"]["target_ch"] = channels.channels
     return {}
 
+class fadeMaxs(BaseModel):
+    fadeMaxs: Dict[str, int]
+
+@api_app.post("/config/setTargetMax")
+def set_channels(fadeMaxs: fadeMaxs):
+    global pipe, config_data
+    sendto_dmx(pipe, {"method": "setTargetMax", "param": fadeMaxs.fadeMaxs})
+    config_data.config["dmx"]["target_max"] = fadeMaxs.fadeMaxs
+    return {}
+
 @api_app.get("/config/channels")
 def get_channels():
     global config_data
@@ -76,6 +86,11 @@ def get_interval():
 def get_delay():
     global config_data
     return config_data.config["dmx"]["delay"]
+
+@api_app.get("/config/target_max")
+def get_target_max():
+    global config_data
+    return config_data.config["dmx"]["target_max"]
 
 @api_app.post("/config/save")
 def save_config():
