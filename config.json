@@ -17,5 +17,9 @@
         "fadeInterval": 2.0,
         "delay": 0.0,
         "fps": 30
+    },
+    "serial": {
+        "dev": "/dev/vmodem0",
+        "speed": 115200
     }
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from rest_api import start_restapi
 from dmx_sender import start_dmx
+from serial_port import start_serial
 from multiprocessing import Process, Pipe, Array
 from config import config
 import json
@@ -37,9 +38,11 @@ if __name__ == '__main__':
     p_rest = Process(target=start_restapi, args=(pipe_rest_c, config_data, ))
 
     pipe_serial_p, pipe_serial_c = Pipe()
+    p_serial = Process(target=start_serial, args=(pipe_serial_c, config_data, ))
 
     p_dmx.start()
     p_rest.start()
+    p_serial.start()
     running = True
 
     while running:
@@ -56,6 +59,7 @@ if __name__ == '__main__':
 
     p_dmx.join()
     p_rest.join()
+    p_serial.join()
     
     pipe_dmx_p.close()
     pipe_rest_p.close()
