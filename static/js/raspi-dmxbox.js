@@ -79,3 +79,9 @@ function loadConfig(Tags) {
         $("#fadedelay").val(data);
     });
 }
+
+function loadIndex() {
+    jQuery.get("./api/config/ignore_remote", (data)=>{
+        $("#ignoreRemote").prop("checked", data);
+    });
+}

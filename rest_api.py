@@ -16,6 +16,8 @@ app.mount("/", StaticFiles(directory="static", html=True), name="static")
 pipe = None
 config_data = None
 
+ignoreRemote = False
+
 @api_app.get("/fadeIn")
 def get_fadeIn(interval:float = None, delay:float = None):
     global pipe
@@ -72,6 +74,13 @@ def set_channels(fadeMaxs: fadeMaxs):
     config_data.config["dmx"]["target_max"] = fadeMaxs.fadeMaxs
     return {}
 
+@api_app.post("/config/setIgnoreRemote")
+def set_default_delay(flag: bool = Form()):
+    global pipe, ignoreRemote
+    sendto_main(pipe, {"method": "ignoreRemote", "param": flag})
+    ignoreRemote = flag
+    return {}
+
 @api_app.get("/config/channels")
 def get_channels():
     global config_data
@@ -91,6 +100,11 @@ def get_delay():
 def get_target_max():
     global config_data
     return config_data.config["dmx"]["target_max"]
+
+@api_app.get("/config/ignore_remote")
+def get_target_max():
+    global ignoreRemote
+    return ignoreRemote
 
 @api_app.post("/config/save")
 def save_config():

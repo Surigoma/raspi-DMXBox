@@ -134,6 +134,11 @@ def start_dmx(pipe: Pipe, config: config):
     if "target_max" in config.config["dmx"]:
         for k, v in config.config["dmx"]["target_max"].items():
             fixture.channel_max[k] = v
+    if "preStatus" in config.config["dmx"]:
+        if config.config["dmx"]["preStatus"]:
+            fixture.fadeIn(0, 0)
+        else:
+            fixture.fadeOut(0, 0)
     fixture.interval = config.config["dmx"]["interval"] if "interval" in config.config["dmx"] else 2.0
     fixture.delay = config.config["dmx"]["delay"] if "delay" in config.config["dmx"] else 0.0
     fps = config.config["dmx"]["fps"] if "fps" in config.config["dmx"] else 30

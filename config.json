@@ -16,10 +16,11 @@
         },
         "fadeInterval": 2.0,
         "delay": 0.0,
-        "fps": 30
+        "fps": 30,
+        "preStatus": true
     },
     "serial": {
-        "dev": "/dev/vmodem0",
+        "dev": "/dev/ttyUSB0",
         "speed": 115200
     },
     "tcp": {

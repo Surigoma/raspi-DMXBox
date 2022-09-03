@@ -9,3 +9,7 @@ def sendto_serial(pipe, message):
 def sendto_rest(pipe, message):
     if pipe == None: return
     pipe.send({"to":"rest", "body":message})
+
+def sendto_main(pipe, message):
+    if pipe == None: return
+    pipe.send({"to":"main", "body":message})
