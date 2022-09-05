@@ -139,7 +139,7 @@ def start_dmx(pipe: Pipe, config: config):
             fixture.fadeIn(0, 0)
         else:
             fixture.fadeOut(0, 0)
-    fixture.interval = config.config["dmx"]["interval"] if "interval" in config.config["dmx"] else 2.0
+    fixture.interval = config.config["dmx"]["fadeInterval"] if "fadeInterval" in config.config["dmx"] else 2.0
     fixture.delay = config.config["dmx"]["delay"] if "delay" in config.config["dmx"] else 0.0
     fps = config.config["dmx"]["fps"] if "fps" in config.config["dmx"] else 30
     dmx.add_device(fixture)
