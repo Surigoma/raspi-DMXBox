@@ -41,6 +41,8 @@
         <div class="d-grid gap-5 col-12 col-sm-6 mx-auto" style="height: 100%;">
             <button class="btn btn-primary btn-lg btn-success" type="button" onClick="API_get('fadeIn')">fadeIn</button>
             <button class="btn btn-primary btn-lg btn-dark" type="button" onClick="API_get('fadeOut')">fadeOut</button>
+            <button class="btn btn-primary btn-lg btn-danger" type="button" onClick="API_get_param('mute', {mute:true})">MIC mute</button>
+            <button class="btn btn-primary btn-lg btn-success" type="button" onClick="API_get_param('mute', {mute:false})">MIC unmute</button>
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="ignoreRemote" oninput='API_post("./api/config/setIgnoreRemote", {flag: this.checked});'>
                 <label class="form-check-label" for="ignoreRemote">外部制御無効化</label>

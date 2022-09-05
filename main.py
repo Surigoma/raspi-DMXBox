@@ -3,6 +3,7 @@ from rest_api import start_restapi
 from dmx_sender import start_dmx
 from serial_port import start_serial
 from tcp_server import start_tcp
+from osc_service import start_osc
 from multiprocessing import Process, Pipe, Array
 from config import config
 import json
@@ -15,11 +16,12 @@ pipe_dmx_p = None
 pipe_rest_p = None
 pipe_serial_p = None
 pipe_tcp_p = None
+pipe_osc_p = None
 
 ignoreRemote = False
 
 def transportMessage(message):
-    global pipe_dmx_p, pipe_rest_p, pipe_serial_p, pipe_tcp_p, ignoreRemote
+    global pipe_dmx_p, pipe_rest_p, pipe_serial_p, pipe_tcp_p, pipe_osc_p, ignoreRemote
     if not "to" in message and "body" in message:
         logmsg("unknown message." + json.dumps(message))
     elif pipe_dmx_p != None and message["to"] == "dmx":
@@ -30,6 +32,8 @@ def transportMessage(message):
         pipe_serial_p.send(message["body"])
     elif pipe_tcp_p != None and message["to"] == "tcp":
         pipe_tcp_p.send(message["body"])
+    elif pipe_osc_p != None and message["to"] == "osc":
+        pipe_osc_p.send(message["body"])
     elif message["to"] == "main":
         if message["body"]["method"] == "ignoreRemote":
             ignoreRemote = bool(message["body"]["param"])
@@ -53,10 +57,14 @@ if __name__ == '__main__':
     pipe_tcp_p, pipe_tcp_c = Pipe()
     p_tcp = Process(target=start_tcp, args=(pipe_tcp_c, config_data, ))
 
+    pipe_osc_p, pipe_osc_c = Pipe()
+    p_osc = Process(target=start_osc, args=(pipe_osc_c, config_data, ))
+
     p_dmx.start()
     p_rest.start()
     p_serial.start()
     p_tcp.start()
+    p_osc.start()
     running = True
 
     while running:
@@ -74,14 +82,19 @@ if __name__ == '__main__':
             message = pipe_tcp_p.recv()
             if ignoreRemote == False:
                 transportMessage(message)
+        if pipe_osc_p.poll():
+            message = pipe_osc_p.recv()
+            transportMessage(message)
         time.sleep(0.01)
 
     p_dmx.join()
     p_rest.join()
     p_serial.join()
     p_tcp.join()
+    p_osc.join()
     
     pipe_dmx_p.close()
     pipe_rest_p.close()
     pipe_serial_p.close()
     pipe_tcp_p.close()
+    pipe_osc_p.close()

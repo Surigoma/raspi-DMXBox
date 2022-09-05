@@ -35,6 +35,10 @@ def start_serial(pipe_c: Pipe, config:config):
                         sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
                     elif text_s == "co":
                         sendto_dmx(pipe, {"method": "fadeOut", "param":{"interval":0}})
+                    elif text_s == "mute":
+                        sendto_osc(pipe, {"method": "mute", "param": True})
+                    elif text_s == "unmute":
+                        sendto_osc(pipe, {"method": "mute", "param": False})
         except serial.SerialException:
             logmsg("Close or broken serial port. Retry connection.(" + str(i) +")")
             time.sleep(3)

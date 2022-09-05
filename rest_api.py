@@ -40,6 +40,13 @@ def get_fadeOut(interval:float = None, delay:float = None):
     sendto_dmx(pipe, message)
     return {}
 
+@api_app.get("/mute")
+def get_fadeOut(mute:bool = None):
+    global pipe
+    message = {"method": "mute", "param": mute}
+    sendto_osc(pipe, message)
+    return {}
+
 @api_app.post("/config/setDefalutInterval")
 def set_default_interval(interval: float = Form()):
     global pipe, config_data

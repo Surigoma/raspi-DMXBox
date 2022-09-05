@@ -1,6 +1,9 @@
 function API_get(path) {
     jQuery.get("./api/" + path);
 }
+function API_get_param(path, param) {
+    jQuery.get("./api/" + path, param);
+}
 function API_post(path, object={}) {
     jQuery.post(path, object);
 }

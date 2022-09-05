@@ -13,3 +13,7 @@ def sendto_rest(pipe, message):
 def sendto_main(pipe, message):
     if pipe == None: return
     pipe.send({"to":"main", "body":message})
+
+def sendto_osc(pipe, message):
+    if pipe == None: return
+    pipe.send({"to":"osc", "body":message})

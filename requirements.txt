@@ -3,3 +3,4 @@ uvicorn
 numpy
 pyserial
 python-multipart
+python-osc

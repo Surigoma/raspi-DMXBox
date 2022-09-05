@@ -37,6 +37,10 @@ def start_tcp(pipe: Pipe, config:config):
             sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
         elif data_s == "co":
             sendto_dmx(pipe, {"method": "fadeOut", "param":{"interval":0}})
+        elif data_s == "mute":
+            sendto_osc(pipe, {"method": "mute", "param": True})
+        elif data_s == "unmute":
+            sendto_osc(pipe, {"method": "mute", "param": False})
         client.send("ack".encode("utf-8"))
         client.close()
     pass
