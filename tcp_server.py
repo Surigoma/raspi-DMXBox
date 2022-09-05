@@ -24,23 +24,24 @@ def start_tcp(pipe: Pipe, config:config):
             client.close()
             continue
         try:
-            data_s = data.decode("utf-8").strip()
+            data_s = data.decode("utf-8").splitlines()
         except UnicodeDecodeError:
             client.close()
             continue
         logmsg("msg:" + str(data_s))
-        if data_s == "fi":
-            sendto_dmx(pipe, {"method": "fadeIn"})
-        elif data_s == "fo":
-            sendto_dmx(pipe, {"method": "fadeOut"})
-        elif data_s == "ci":
-            sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
-        elif data_s == "co":
-            sendto_dmx(pipe, {"method": "fadeOut", "param":{"interval":0}})
-        elif data_s == "mute":
-            sendto_osc(pipe, {"method": "mute", "param": True})
-        elif data_s == "unmute":
-            sendto_osc(pipe, {"method": "mute", "param": False})
+        for cmd in data_s:
+            if cmd == "fi":
+                sendto_dmx(pipe, {"method": "fadeIn"})
+            elif cmd == "fo":
+                sendto_dmx(pipe, {"method": "fadeOut"})
+            elif cmd == "ci":
+                sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
+            elif cmd == "co":
+                sendto_dmx(pipe, {"method": "fadeOut", "param":{"interval":0}})
+            elif cmd == "mute":
+                sendto_osc(pipe, {"method": "mute", "param": True})
+            elif cmd == "unmute":
+                sendto_osc(pipe, {"method": "mute", "param": False})
         client.send("ack".encode("utf-8"))
         client.close()
     pass
