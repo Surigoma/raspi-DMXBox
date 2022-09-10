@@ -14,7 +14,7 @@ def logmsg(message): print("[main]" + message)
 
 pipe_dmx_p = None
 pipe_rest_p = None
-pipe_serial_p = None
+#pipe_serial_p = None
 pipe_tcp_p = None
 pipe_osc_p = None
 
@@ -28,8 +28,8 @@ def transportMessage(message):
         pipe_dmx_p.send(message["body"])
     elif pipe_rest_p != None and message["to"] == "rest":
         pipe_rest_p.send(message["body"])
-    elif pipe_serial_p != None and message["to"] == "serial":
-        pipe_serial_p.send(message["body"])
+    #elif pipe_serial_p != None and message["to"] == "serial":
+    #    pipe_serial_p.send(message["body"])
     elif pipe_tcp_p != None and message["to"] == "tcp":
         pipe_tcp_p.send(message["body"])
     elif pipe_osc_p != None and message["to"] == "osc":
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     pipe_rest_p, pipe_rest_c = Pipe()
     p_rest = Process(target=start_restapi, args=(pipe_rest_c, config_data, ))
 
-    pipe_serial_p, pipe_serial_c = Pipe()
-    p_serial = Process(target=start_serial, args=(pipe_serial_c, config_data, ))
+    #pipe_serial_p, pipe_serial_c = Pipe()
+    #p_serial = Process(target=start_serial, args=(pipe_serial_c, config_data, ))
 
     pipe_tcp_p, pipe_tcp_c = Pipe()
     p_tcp = Process(target=start_tcp, args=(pipe_tcp_c, config_data, ))
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     p_dmx.start()
     p_rest.start()
-    p_serial.start()
+    #p_serial.start()
     p_tcp.start()
     p_osc.start()
     running = True
@@ -74,10 +74,10 @@ if __name__ == '__main__':
         if pipe_dmx_p.poll():
             message = pipe_dmx_p.recv()
             transportMessage(message)
-        if pipe_serial_p.poll():
-            message = pipe_serial_p.recv()
-            if ignoreRemote == False:
-                transportMessage(message)
+        #if pipe_serial_p.poll():
+        #    message = pipe_serial_p.recv()
+        #    if ignoreRemote == False:
+        #        transportMessage(message)
         if pipe_tcp_p.poll():
             message = pipe_tcp_p.recv()
             if ignoreRemote == False:
@@ -95,6 +95,6 @@ if __name__ == '__main__':
     
     pipe_dmx_p.close()
     pipe_rest_p.close()
-    pipe_serial_p.close()
+    #pipe_serial_p.close()
     pipe_tcp_p.close()
     pipe_osc_p.close()
