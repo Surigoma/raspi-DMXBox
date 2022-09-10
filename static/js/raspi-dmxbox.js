@@ -26,7 +26,19 @@ function postChannel() {
         }
     });
     API_post_json("./api/config/setChannel", {"channels": channels});
-    updateRange(fadeMax);
+    updateRange();
+}
+
+function postAddChannel() {
+    var channels = $("#additional_ch").val().map((v)=>{return parseInt(v)});
+    keys = Object.keys(fadeMax);
+    channels.forEach((v)=>{
+        if (keys.indexOf("" + v) == -1) {
+            fadeMax[v] = 255;
+        }
+    });
+    API_post_json("./api/config/setAddChannel", {"channels": channels});
+    updateRange();
 }
 
 function generateRange(index, value) {
@@ -35,11 +47,15 @@ function generateRange(index, value) {
     return $(template.replace(/\{0\}/g, index).replace(/\{1\}/g, value));
 }
 
-function updateRange(map) {
+function updateRange() {
     ranges = $("#ranges");
     ranges.empty();
-    Object.keys(map).forEach((key)=>{
-        elem = generateRange(key, map[key]);
+    Object.keys(fadeMax).forEach((key)=>{
+        elem = generateRange(key, fadeMax[key]);
+        ranges.append(elem);
+    });
+    Object.keys(fadeAddMax).forEach((key)=>{
+        elem = generateRange(key, fadeAddMax[key]);
         ranges.append(elem);
     });
 }
@@ -55,24 +71,37 @@ function postFadeMax () {
 
 function loadConfig(Tags) {
     var channels = Tags.getInstance($("#channels")[0])
+    var add_channels = Tags.getInstance($("#additional_ch")[0])
     jQuery.get("./api/config/target_max", (data)=>{
         fadeMax = data;
-        jQuery.get("./api/config/channels", (data)=>{
-            keys = Object.keys(fadeMax);
-            $.each(data, (i, v)=>{
-                channels.addItem(v);
-                index = keys.indexOf("" + v);
-                if (index == -1) {
-                    fadeMax[v] = 255;
-                }
-                else {
-                    delete keys[index];
-                }
-            });
-            $.each(keys, (i,v)=>{
-                delete fadeMax[v];
-            });
-            updateRange(fadeMax);
+        jQuery.get("./api/config/channels", (data_c)=>{
+            jQuery.get("./api/config/add_channels", (data_ac)=>{
+                keys = Object.keys(fadeMax);
+                $.each(data_c, (i, v)=>{
+                    channels.addItem(v);
+                    index = keys.indexOf("" + v);
+                    if (index == -1) {
+                        fadeMax[v] = 255;
+                    }
+                    else {
+                        delete keys[index];
+                    }
+                });
+                $.each(data_ac, (i, v)=>{
+                    add_channels.addItem(v);
+                    index = keys.indexOf("" + v);
+                    if (index == -1) {
+                        fadeMax[v] = 255;
+                    }
+                    else {
+                        delete keys[index];
+                    }
+                });
+                $.each(keys, (i,v)=>{
+                    delete fadeMax[v];
+                });
+                updateRange(fadeMax);
+            })
         });
     });
     jQuery.get("./api/config/interval", (data)=>{

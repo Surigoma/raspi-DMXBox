@@ -34,6 +34,10 @@ def start_tcp(pipe: Pipe, config:config):
                 sendto_dmx(pipe, {"method": "fadeIn"})
             elif cmd == "fo":
                 sendto_dmx(pipe, {"method": "fadeOut"})
+            elif cmd == "fai":
+                sendto_dmx(pipe, {"method": "fadeAddIn"})
+            elif cmd == "fao":
+                sendto_dmx(pipe, {"method": "fadeAddOut"})
             elif cmd == "ci":
                 sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
             elif cmd == "co":

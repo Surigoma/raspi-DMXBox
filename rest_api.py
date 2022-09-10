@@ -40,6 +40,28 @@ def get_fadeOut(interval:float = None, delay:float = None):
     sendto_dmx(pipe, message)
     return {}
 
+@api_app.get("/fadeAddIn")
+def get_fadeIn(interval:float = None, delay:float = None):
+    global pipe
+    message = {"method": "fadeAddIn", "param": {}}
+    if interval != None:
+        message["param"]["interval"] = interval
+    if delay != None:
+        message["param"]["delay"] = delay
+    sendto_dmx(pipe, message)
+    return {}
+
+@api_app.get("/fadeAddOut")
+def get_fadeOut(interval:float = None, delay:float = None):
+    global pipe
+    message = {"method": "fadeAddOut", "param": {}}
+    if interval != None:
+        message["param"]["interval"] = interval
+    if delay != None:
+        message["param"]["delay"] = delay
+    sendto_dmx(pipe, message)
+    return {}
+
 @api_app.get("/mute")
 def get_fadeOut(mute:bool = None):
     global pipe
@@ -71,6 +93,13 @@ def set_channels(channels: channels):
     config_data.config["dmx"]["target_ch"] = channels.channels
     return {}
 
+@api_app.post("/config/setAddChannel")
+def set_channels(channels: channels):
+    global pipe, config_data
+    sendto_dmx(pipe, {"method": "setAddChannel", "param": channels.channels})
+    config_data.config["dmx"]["target_additional_ch"] = channels.channels
+    return {}
+
 class fadeMaxs(BaseModel):
     fadeMaxs: Dict[str, int]
 
@@ -92,6 +121,11 @@ def set_default_delay(flag: bool = Form()):
 def get_channels():
     global config_data
     return config_data.config["dmx"]["target_ch"]
+
+@api_app.get("/config/add_channels")
+def get_channels():
+    global config_data
+    return config_data.config["dmx"]["target_additional_ch"]
 
 @api_app.get("/config/interval")
 def get_interval():

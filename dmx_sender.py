@@ -1,3 +1,4 @@
+from typing import Dict
 from dmx import *
 import time
 import numpy as np
@@ -7,72 +8,126 @@ import json
 
 def logmsg(message) : print("[dmx]" + message)
 
-class ALLLIGHT(DMXDevice):
-    channels = []
-    channel_max = {}
-    fade = 0.0
+class timeitem():
+    channel = 0
+    fademax = 255
     light = False
-    start_time = 0
-    end_time = 0
-    priv_fade = 0
+    start_time = time.time()
+    end_time = start_time
     interval = 2
     delay = 0
+    priv_fade = 0
+    fade = 0.0
 
-    def __init__(self, name):
-        super().__init__(name, 1, num_chans=512)
-
-    def addChannel(self, id):
-        if id in self.channels:
-            return
-        self.channels.append(id)
-
-    def fadeIn(self, interval=None, delay=None):
+    def updateTime(self, interval, delay):
         interval = interval if interval != None else self.interval
         delay = delay if delay != None else self.delay
+        self.start_time = time.time() + delay
+        self.end_time = self.start_time + interval
+        self.priv_fade = self.fade
+
+    def fadeIn(self, interval = None, delay = None):
         self.light = True
-        self.start_time = time.time() + delay
-        self.end_time = self.start_time + interval
-        self.priv_fade = self.fade
+        self.updateTime(interval, delay)
 
-    def fadeOut(self, interval=None, delay=None):
-        interval = interval if interval != None else self.interval
-        delay = delay if delay != None else self.delay
+    def fadeOut(self, interval = None, delay = None):
         self.light = False
-        self.start_time = time.time() + delay
-        self.end_time = self.start_time + interval
-        self.priv_fade = self.fade
-
-    def setDefaultInterval(self, interval):
-        self.interval = interval
-        return
-
-    def setDefaultDelay(self, delay):
-        self.delay = delay
-        return
-
+        self.updateTime(interval, delay)
+    
     def update(self, dmx):
         if self.end_time == 0 or self.start_time == 0: return
         per = 1 if self.start_time < time.time() else 0
         if (self.end_time - self.start_time) > 0:
             per = np.clip((time.time() - self.start_time) / (self.end_time - self.start_time), 0.0, 1.0)
         self.fade = np.clip(self.priv_fade + (per if self.light else -per), 0.0, 1.0)
-        for i in self.channels:
-            max = self.channel_max[str(i)] if str(i) in self.channel_max else 255
-            max = max if max > 0 else 1
-            dmx.set_float(self.chan_no, i, self.fade, 0, max)
+        max = self.fademax if not (self.fademax == None) else 255
+        max = max if max > 0 else 1
+        dmx.set_float(self.channel, 1, self.fade, 0, max)
+        pass
+
+class ALLLIGHT(DMXDevice):
+    channels = {}
+    additional_channel = {}
+    interval = 0
+    delay = 0
+
+    def __init__(self, name):
+        super().__init__(name, 1, num_chans=512)
+
+    def addChannel(self, id, interval = None, delay = None):
+        if id in self.channels:
+            return
+        if not (id >= 1 and id <= 512):
+            return
+        channel = timeitem()
+        channel.channel = id
+        channel.interval = interval if interval != None else self.interval
+        channel.delay = delay if delay != None else self.delay
+        self.channels[str(id)] = channel
+
+    def addAdditionalChannel(self, id, interval = None, delay = None):
+        if id in self.additional_channel:
+            return
+        if not (id >= 1 and id <= 512):
+            return
+        channel = timeitem()
+        channel.channel = id
+        channel.interval = interval if interval != None else self.interval
+        channel.delay = delay if delay != None else self.delay
+        self.additional_channel[str(id)] = channel
+
+    def fadeIn(self, interval=None, delay=None):
+        for _, v in self.channels.items():
+            v.fadeIn(interval, delay)
+
+    def fadeOut(self, interval=None, delay=None):
+        for _, v in self.channels.items():
+            v.fadeOut(interval, delay)
+
+    def fadeAddIn(self, interval=None, delay=None):
+        for _, v in self.additional_channel.items():
+            v.fadeIn(interval, delay)
+
+    def fadeAddOut(self, interval=None, delay=None):
+        for _, v in self.additional_channel.items():
+            v.fadeOut(interval, delay)
+
+    def setDefaultInterval(self, interval):
+        for _, v in self.channels.items():
+            v.interval = interval
+        for _, v in self.additional_channel.items():
+            v.interval = interval
+        return
+
+    def setDefaultDelay(self, delay):
+        for _, v in self.channels.items():
+            v.delay = delay
+        for _, v in self.additional_channel.items():
+            v.delay = delay
+        return
+
+    def update(self, dmx):
+        for _, v in self.channels.items():
+            v.update(dmx)
+        for _, v in self.additional_channel.items():
+            v.update(dmx)
 
     def updateChannel(self, channels):
         self.channels.clear()
-        for c in channels:
-            if c >= 1 and c <= 512:
-                self.channels.append(c)
+        for c in channels: 
+            self.addChannel(c)
+
+    def updateAddChannel(self, channels):
+        self.channels.clear()
+        for c in channels: 
+            self.addAdditionalChannel(c)
 
     def updateChannelMax(self, fadeMaxs):
-        self.channel_max.clear()
         for k, v in fadeMaxs.items():
-            k_i = int(k)
-            if k_i >= 1 and k_i <= 512:
-                self.channel_max[k] = v
+            if k in self.channels:
+                self.channels[k].fademax = v
+            if k in self.additional_channel:
+                self.additional_channel[k].fademax = v
 
 dmx: DMXUniverse = None
 fixture: ALLLIGHT = None
@@ -102,6 +157,24 @@ def decode_message(message):
             if "delay" in message["param"]:
                 delay = message["param"]["delay"]
         fixture.fadeOut(interval, delay)
+    elif message["method"] == "fadeAddIn":
+        interval = None
+        delay = None
+        if "param" in message:
+            if "interval" in message["param"]:
+                interval = message["param"]["interval"]
+            if "delay" in message["param"]:
+                delay = message["param"]["delay"]
+        fixture.fadeAddIn(interval, delay)
+    elif message["method"] == "fadeAddOut":
+        interval = None
+        delay = None
+        if "param" in message:
+            if "interval" in message["param"]:
+                interval = message["param"]["interval"]
+            if "delay" in message["param"]:
+                delay = message["param"]["delay"]
+        fixture.fadeAddOut(interval, delay)
     elif message["method"] == "updateChannel":
         if not "param" in message:
             return
@@ -118,6 +191,10 @@ def decode_message(message):
         if not "param" in message:
             return
         fixture.updateChannel(message["param"])
+    elif message["method"] == "setAddChannel":
+        if not "param" in message:
+            return
+        fixture.updateAddChannel(message["param"])
     elif message["method"] == "setTargetMax":
         if not "param" in message:
             return
@@ -128,19 +205,21 @@ def start_dmx(pipe: Pipe, config: config):
     global dmx, fixture, running
     dmx = DMXUniverse(url=config.config["hw"]["url"] if config.config["hw"]["url"] else "ftdi://ftdi:232:AB0OXCQ4/1")
     fixture = ALLLIGHT("alllight")
+    fixture.interval = config.config["dmx"]["fadeInterval"] if "fadeInterval" in config.config["dmx"] else 2.0
+    fixture.delay = config.config["dmx"]["delay"] if "delay" in config.config["dmx"] else 0.0
     if "target_ch" in config.config["dmx"]:
         for i in config.config["dmx"]["target_ch"]:
             fixture.addChannel(i)
+    if "target_additional_ch" in config.config["dmx"]:
+        for i in config.config["dmx"]["target_additional_ch"]:
+            fixture.addAdditionalChannel(i)
     if "target_max" in config.config["dmx"]:
-        for k, v in config.config["dmx"]["target_max"].items():
-            fixture.channel_max[k] = v
+        fixture.updateChannelMax(config.config["dmx"]["target_max"])
     if "preStatus" in config.config["dmx"]:
         if config.config["dmx"]["preStatus"]:
             fixture.fadeIn(0, 0)
         else:
             fixture.fadeOut(0, 0)
-    fixture.interval = config.config["dmx"]["fadeInterval"] if "fadeInterval" in config.config["dmx"] else 2.0
-    fixture.delay = config.config["dmx"]["delay"] if "delay" in config.config["dmx"] else 0.0
     fps = config.config["dmx"]["fps"] if "fps" in config.config["dmx"] else 30
     dmx.add_device(fixture)
     dmx.start_dmx_thread(1/fps)

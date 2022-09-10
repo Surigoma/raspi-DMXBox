@@ -31,6 +31,10 @@ def start_serial(pipe_c: Pipe, config:config):
                         sendto_dmx(pipe, {"method": "fadeIn"})
                     elif text_s == "fo":
                         sendto_dmx(pipe, {"method": "fadeOut"})
+                    elif text_s == "fai":
+                        sendto_dmx(pipe, {"method": "fadeAddIn"})
+                    elif text_s == "fao":
+                        sendto_dmx(pipe, {"method": "fadeAddOut"})
                     elif text_s == "ci":
                         sendto_dmx(pipe, {"method": "fadeIn", "param":{"interval":0}})
                     elif text_s == "co":

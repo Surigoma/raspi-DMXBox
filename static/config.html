@@ -47,7 +47,15 @@
             <button class="btn btn-secondary my-1" type="button" onclick="postChannel();">チャンネル保存</button>
         </div>
         <div class="d-grid m-5">
-            <label for="channels" class="form-label">フェード時間</label>
+            <label for="additional_ch" class="form-label">追加出力チャンネル</label>
+            <select class="form-select" id="additional_ch" name="additional_ch[]" multiple data-allow-clear="true" data-allow-new="true" data-regex="[0-9]+">
+                <option disabled hidden value="">チャンネルを入力してください...</option>
+            </select>
+            <div class="invalid-feedback">正しいチャンネルを指定してください。</div>
+            <button class="btn btn-secondary my-1" type="button" onclick="postAddChannel();">チャンネル保存</button>
+        </div>
+        <div class="d-grid m-5">
+            <label for="fadespeed" class="form-label">フェード時間</label>
             <div class="input-group mb-3">
                 <input id="fadespeed" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadespeed-addon">
                 <span class="input-group-text" id="fadespeed-addon">秒</span>
@@ -55,7 +63,7 @@
             <button class="btn btn-secondary my-1" type="button" onclick='API_post("./api/config/setDefalutInterval", {interval: $("#fadespeed").val()});'>フェード時間保存</button>
         </div>
         <div class="d-grid m-5">
-            <label for="channels" class="form-label">ディレイ</label>
+            <label for="fadedelay" class="form-label">ディレイ</label>
             <div class="input-group mb-3">
                 <input id="fadedelay" type="number" class="form-control" placeholder="Fade speed" aria-label="フェード時間" aria-describedby="fadedelay-addon">
                 <span class="input-group-text" id="fadedelay-addon">秒</span>
@@ -63,7 +71,7 @@
             <button class="btn btn-secondary my-1" type="button" onclick='API_post("./api/config/setDefaultDelay", {delay: $("#fadedelay").val()});'>ディレイ保存</button>
         </div>
         <div class="d-grid mx-5">
-            <label for="channels" class="form-label">チャンネルごとの最大値</label>
+            <label for="ranges" class="form-label">チャンネルごとの最大値</label>
             <div class="d-grid mb-5" id="ranges">
             </div>
             <button class="btn btn-secondary my-1" type="button" onclick='postFadeMax();'>最大値保存</button>
