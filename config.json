@@ -7,17 +7,24 @@
         "port": 8080
     },
     "dmx": {
-        "target_ch":[1, 2, 3, 4],
+        "target_ch": [
+            11,
+            12
+        ],
+        "target_additional_ch": [
+            9,
+            10
+        ],
         "target_max": {
-            "1": 255,
-            "2": 255,
-            "3": 255,
-            "4": 255
+            "11": 180,
+            "12": 180,
+            "9": 255,
+            "10": 255
         },
         "fadeInterval": 0.7,
         "delay": 0.0,
         "fps": 30,
-        "preStatus": true
+        "preStatus": false
     },
     "serial": {
         "dev": "/dev/ttyUSB0",
@@ -28,7 +35,7 @@
         "port": 50000
     },
     "osc": {
-        "ip": "192.168.2.48",
+        "ip": "192.168.101.110",
         "port": 7001
     }
 }
