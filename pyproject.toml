@@ -1,0 +1,15 @@
+[project]
+name = "raspi-dmxbox"
+version = "1.0.1"
+description = "for my friends."
+readme = "README.md"
+requires-python = ">=3.10.6"
+dependencies = [
+    "fastapi>=0.116.1",
+    "numpy>=2.2.6",
+    "pyftdi>=0.57.1",
+    "pyserial>=3.5",
+    "python-multipart>=0.0.20",
+    "python-osc>=1.9.3",
+    "uvicorn>=0.35.0",
+]
