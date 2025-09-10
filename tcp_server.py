@@ -15,7 +15,7 @@ def start_tcp(pipe: Connection, config:config):
     tcp_server.bind((server_ip, server_port))
     tcp_server.listen(listen_backlog)
     logmsg("listen start. " + server_ip + ":" + str(server_port))
-    while True:
+    while not pipe.closed:
         client, address = tcp_server.accept()
         logmsg("connect. " + str(address))
         data = client.recv(recv_buffer)

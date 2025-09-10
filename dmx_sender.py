@@ -224,11 +224,12 @@ def start_dmx(pipe: Connection, config: config):
     dmx.start_dmx_thread(1/fps)
     running = True
 
-    while running:
+    while not pipe.closed and running:
         if not pipe.poll():
             time.sleep(0.01)
             continue
         message = pipe.recv()
         logmsg(json.dumps(message))
         decode_message(message)
+    dmx.stop_dmx_thread()
     logmsg ("Stopped DMX Process")

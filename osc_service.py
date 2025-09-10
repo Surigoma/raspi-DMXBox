@@ -28,7 +28,7 @@ def start_osc(pipe: Connection, config: config):
     micline = config.config["osc"]["mic"] if "mic" in config.config["osc"] else [1]
     client = SimpleUDPClient(ip, port)
     logmsg("Start OSC service.")
-    while True:
+    while not pipe.closed:
         if not pipe.poll():
             time.sleep(0.1)
             continue
