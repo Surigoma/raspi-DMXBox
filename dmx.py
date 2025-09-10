@@ -125,7 +125,7 @@ class DMXDevice:
             (that.chan_no >= this.chan_no and that.chan_no <= this_last)
         )
 
-    def update(self, dmx):
+    def update(self, dmx: DMXUniverse):
         raise NotImplementedError
 
 class RGBWSpotLight(DMXDevice):

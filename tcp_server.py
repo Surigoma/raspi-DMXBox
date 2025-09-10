@@ -1,6 +1,6 @@
 import socket
 from config import config
-from multiprocessing import Pipe
+from multiprocessing.connection import Connection
 from util import *
 
 listen_backlog = 5
@@ -8,7 +8,7 @@ recv_buffer = 128
 
 def logmsg(message) : print("[tcp]" + message)
 
-def start_tcp(pipe: Pipe, config:config):
+def start_tcp(pipe: Connection, config:config):
     server_ip = config.config["tcp"]["ip"] if "ip" in config.config["tcp"] else "0.0.0.0"
     server_port = config.config["tcp"]["port"] if "ip" in config.config["tcp"] else "50000"
     tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

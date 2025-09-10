@@ -1,15 +1,15 @@
 from tokenize import String
 import serial
 from config import config
-from multiprocessing import Pipe
+from multiprocessing.connection import Connection
 from util import *
 import time
 
 def logmsg(message) : print("[serial]" + message)
 
-pipe: Pipe = None
+pipe: Connection = None
 
-def start_serial(pipe_c: Pipe, config:config):
+def start_serial(pipe_c: Connection, config:config):
     pipe = pipe_c
     dev = config.config["serial"]["dev"] if "dev" in config.config["serial"] else "/dev/vmodem0"
     baudrate = config.config["serial"]["speed"] if "speed" in config.config["serial"] else 115200

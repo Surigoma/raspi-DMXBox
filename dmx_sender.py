@@ -1,23 +1,23 @@
+from multiprocessing.connection import Connection
 from typing import Dict
 from dmx import *
 import time
 import numpy as np
 from config import config
-from multiprocessing import Pipe
 import json
 
 def logmsg(message) : print("[dmx]" + message)
 
 class timeitem():
-    channel = 0
-    fademax = 255
+    channel: int = 0
+    fademax: int = 255
     light = False
     start_time = time.time()
     end_time = start_time
-    interval = 2
-    delay = 0
-    priv_fade = 0
-    fade = 0.0
+    interval: float = 2.0
+    delay: float = 0.0
+    priv_fade: float = 0.0
+    fade: float = 0.0
 
     def updateTime(self, interval, delay):
         interval = interval if interval != None else self.interval
@@ -34,7 +34,7 @@ class timeitem():
         self.light = False
         self.updateTime(interval, delay)
     
-    def update(self, dmx):
+    def update(self, dmx: DMXUniverse):
         if self.end_time == 0 or self.start_time == 0: return
         per = 1 if self.start_time < time.time() else 0
         if (self.end_time - self.start_time) > 0:
@@ -46,8 +46,8 @@ class timeitem():
         pass
 
 class ALLLIGHT(DMXDevice):
-    channels = {}
-    additional_channel = {}
+    channels: Dict[str, timeitem] = {}
+    additional_channel: Dict[str, timeitem] = {}
     interval = 0
     delay = 0
 
@@ -92,21 +92,21 @@ class ALLLIGHT(DMXDevice):
         for _, v in self.additional_channel.items():
             v.fadeOut(interval, delay)
 
-    def setDefaultInterval(self, interval):
+    def setDefaultInterval(self, interval: float):
         for _, v in self.channels.items():
             v.interval = interval
         for _, v in self.additional_channel.items():
             v.interval = interval
         return
 
-    def setDefaultDelay(self, delay):
+    def setDefaultDelay(self, delay: float):
         for _, v in self.channels.items():
             v.delay = delay
         for _, v in self.additional_channel.items():
             v.delay = delay
         return
 
-    def update(self, dmx):
+    def update(self, dmx: DMXUniverse):
         for _, v in self.channels.items():
             v.update(dmx)
         for _, v in self.additional_channel.items():
@@ -122,7 +122,7 @@ class ALLLIGHT(DMXDevice):
         for c in channels: 
             self.addAdditionalChannel(c)
 
-    def updateChannelMax(self, fadeMaxs):
+    def updateChannelMax(self, fadeMaxs: Dict[str, int]):
         for k, v in fadeMaxs.items():
             if k in self.channels:
                 self.channels[k].fademax = v
@@ -199,9 +199,8 @@ def decode_message(message):
         if not "param" in message:
             return
         fixture.updateChannelMax(message["param"])
-    pass
 
-def start_dmx(pipe: Pipe, config: config):
+def start_dmx(pipe: Connection, config: config):
     global dmx, fixture, running
     dmx = DMXUniverse(url=config.config["hw"]["url"] if config.config["hw"]["url"] else "ftdi://ftdi:232:AB0OXCQ4/1")
     fixture = ALLLIGHT("alllight")
@@ -220,7 +219,7 @@ def start_dmx(pipe: Pipe, config: config):
             fixture.fadeIn(0, 0)
         else:
             fixture.fadeOut(0, 0)
-    fps = config.config["dmx"]["fps"] if "fps" in config.config["dmx"] else 30
+    fps: float = config.config["dmx"]["fps"] if "fps" in config.config["dmx"] else 30
     dmx.add_device(fixture)
     dmx.start_dmx_thread(1/fps)
     running = True

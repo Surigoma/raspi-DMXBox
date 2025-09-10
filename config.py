@@ -1,7 +1,8 @@
 import json
+from typing import Dict
 
 class config:
-    config = {}
+    config: Dict = {}
     def __init__(self, path = "./config.json"):
         with open(path, mode="r") as f:
             self.config = json.load(f)

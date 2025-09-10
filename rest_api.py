@@ -1,11 +1,11 @@
 #!/usr/bin/python
+from multiprocessing.connection import Connection
 import uvicorn
 from typing import List, Dict
 from fastapi import FastAPI, Form
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from config import config
-from multiprocessing import Pipe
 from util import *
 
 app = FastAPI(title="Static")
@@ -152,7 +152,7 @@ def save_config():
     config_data.save()
     return {}
 
-def start_restapi(pipe_c: Pipe, config: config):
+def start_restapi(pipe_c: Connection, config: config):
     global pipe, config_data
     port = int(config.config["http"]["port"]) if "port" in config.config["http"] else 8888
     pipe = pipe_c
