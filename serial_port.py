@@ -46,4 +46,3 @@ def start_serial(pipe_c: Connection, config:config):
         except serial.SerialException:
             logmsg("Close or broken serial port. Retry connection.(" + str(i) +")")
             time.sleep(3)
-            pass

@@ -35,4 +35,3 @@ def start_osc(pipe: Connection, config: config):
         message = pipe.recv()
         logmsg(message)
         decode_message(message)
-    pass

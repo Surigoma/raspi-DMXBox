@@ -232,4 +232,3 @@ def start_dmx(pipe: Connection, config: config):
         logmsg(json.dumps(message))
         decode_message(message)
     logmsg ("Stopped DMX Process")
-    pass
