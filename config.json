@@ -37,6 +37,9 @@
     "osc": {
         "ip": "192.168.101.110",
         "port": 49900,
-        "mic": [8, 9, 10, 11, 12]
+        "format": "/yosc:req/set/MIXER:Current/InCh/Fader/On/{}/1",
+        "type": "int",
+        "inverse": true,
+        "mic": [9, 10, 11, 12, 13]
     }
 }
