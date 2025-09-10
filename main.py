@@ -14,12 +14,6 @@ from util import *
 
 def logmsg(message): print("[main]" + message)
 
-pipe_dmx_p = None
-pipe_rest_p = None
-#pipe_serial_p = None
-pipe_tcp_p = None
-pipe_osc_p = None
-
 pipe_table: Dict[str, Connection] = {
     "dmx": None,
     "rest": None,
