@@ -21,10 +21,14 @@ class DMXUniverse:
     """
     def __init__(self, url='ftdi://ftdi:232:AL6E8JFW/1'):
         self.url = url
-        self.port = Ftdi.create_from_url(url)
-        self.port.reset()
-        self.port.set_baudrate(baudrate=250000)
-        self.port.set_line_property(bits=8, stopbit=2, parity='N', break_=False)
+        try:
+            self.port = Ftdi.create_from_url(url)
+            self.port.reset()
+            self.port.set_baudrate(baudrate=250000)
+            self.port.set_line_property(bits=8, stopbit=2, parity='N', break_=False)
+        except ValueError:
+            self.port = None
+            assert "Port error"
         assert self.port.is_connected
 
         # The 0th byte must be 0 (start code)
@@ -97,7 +101,7 @@ class DMXUniverse:
                 time.sleep(next_time)
 
         dmx_thread = threading.Thread(target=dmx_thread_fn, args=(), daemon=True)
-        self.dmx_thread_run = True
+        self.dmx_thread_run = self.port is not None
         dmx_thread.start()
 
     def stop_dmx_thread(self):
