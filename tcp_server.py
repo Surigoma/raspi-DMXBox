@@ -14,9 +14,13 @@ def start_tcp(pipe: Connection, config:config):
     tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcp_server.bind((server_ip, server_port))
     tcp_server.listen(listen_backlog)
+    tcp_server.settimeout(1.0)
     logmsg("listen start. " + server_ip + ":" + str(server_port))
     while not pipe.closed:
-        client, address = tcp_server.accept()
+        try:
+            client, address = tcp_server.accept()
+        except TimeoutError:
+            continue
         logmsg("connect. " + str(address))
         data = client.recv(recv_buffer)
         logmsg("msg:" + str(data))
