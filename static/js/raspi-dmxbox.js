@@ -16,6 +16,8 @@ function API_post_json(path, object={}) {
 }
 
 fadeMax = {}
+fadeNormal = []
+fadeAdd = []
 
 function postChannel() {
     var channels = $("#channels").val().map((v)=>{return parseInt(v)});
@@ -50,12 +52,12 @@ function generateRange(index, value) {
 function updateRange() {
     ranges = $("#ranges");
     ranges.empty();
-    Object.keys(fadeMax).forEach((key)=>{
+    fadeNormal.forEach((key)=>{
         elem = generateRange(key, fadeMax[key]);
         ranges.append(elem);
     });
-    Object.keys(fadeAddMax).forEach((key)=>{
-        elem = generateRange(key, fadeAddMax[key]);
+    fadeAdd.forEach((key)=>{
+        elem = generateRange(key, fadeMax[key]);
         ranges.append(elem);
     });
 }
@@ -76,6 +78,8 @@ function loadConfig(Tags) {
         fadeMax = data;
         jQuery.get("./api/config/channels", (data_c)=>{
             jQuery.get("./api/config/add_channels", (data_ac)=>{
+                fadeNormal = data_c;
+                fadeAdd = data_ac;
                 keys = Object.keys(fadeMax);
                 $.each(data_c, (i, v)=>{
                     channels.addItem(v);
