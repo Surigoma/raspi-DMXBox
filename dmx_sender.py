@@ -59,11 +59,12 @@ class ALLLIGHT(DMXDevice):
             return
         if not (id >= 1 and id <= 512):
             return
-        channel = timeitem()
-        channel.channel = id
-        channel.interval = interval if interval != None else self.interval
-        channel.delay = delay if delay != None else self.delay
-        self.channels[str(id)] = channel
+        for i in range(3):
+            channel = timeitem()
+            channel.channel = id + i
+            channel.interval = interval if interval != None else self.interval
+            channel.delay = delay if delay != None else self.delay
+            self.channels[str(id + i)] = channel
 
     def addAdditionalChannel(self, id, interval = None, delay = None):
         if id in self.additional_channel:

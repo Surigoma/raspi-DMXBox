@@ -49,11 +49,41 @@ function generateRange(index, value) {
     return $(template.replace(/\{0\}/g, index).replace(/\{1\}/g, value));
 }
 
+function generateWCTitle(w, d) {
+    return "W:" + Math.round(w * 100) + "% D:"+ Math.round(d * 100) + "%";
+}
+
+function updateWCRange(elm) {
+    var ch = parseInt(elm.id.replace("_w", "").replace("_d", "").replace("fadewcrange", ""));
+    var label_elm = $("[for=faderange" + ch + "] > i");
+    var w_v = $("#fadewcrange" + ch + "_w")[0].value;
+    var d_v = $("#fadewcrange" + ch + "_d")[0].value;
+    label_elm.text(generateWCTitle(w_v, d_v));
+    const ch1 = Math.round(d_v * w_v * 255);
+    const ch0 = Math.round(255 * d_v - ch1);
+    $("#faderange" + ch)[0].value = ch0;
+    $("#faderange" + (ch + 1))[0].value = ch1;
+}
+
+function generateWCRange(index, value) {
+    let wc = (value[0] / (value[0] + value[1]));
+    if (isNaN(wc)) { wc = 0.5; }
+    let dim = Math.max(value[0], value[1]) / 255;
+    const template = '<label for="faderange{0_0}" class="form-label">CH {0_0}-{0_2} : <i>{3}</i></label>\
+    <input type="hidden" id="faderange{0_0}" value="{2_0}"/> \
+    <input type="hidden" id="faderange{0_1}" value="{2_1}"/> \
+    <input type="hidden" id="faderange{0_2}" value="0" /> \
+    <input type="range" class="form-range" id="fadewcrange{0_0}_w" step="0.01" min="0" max="1" value="{1}" oninput=\'updateWCRange(this);\'> \
+    <input type="range" class="form-range" id="fadewcrange{0_0}_d" step="0.01" min="0" max="1" value="{2}" oninput=\'updateWCRange(this);\'>';
+    return $(template.replace(/\{0_0\}/g, index).replace(/\{0_1\}/g, index + 1).replace(/\{0_2\}/g, index + 2).replace(/\{1\}/g, wc).replace(/\{2\}/g, dim).replace(/\{2_0\}/g, value[0]).replace(/\{2_1\}/g, value[1]).replace(/\{3\}/g, generateWCTitle(wc, dim)));
+}
+
 function updateRange() {
     ranges = $("#ranges");
     ranges.empty();
     fadeNormal.forEach((key)=>{
-        elem = generateRange(key, fadeMax[key]);
+        ary = [fadeMax[key], fadeMax[key + 1], fadeMax[key + 2]]
+        elem = generateWCRange(key, ary);
         ranges.append(elem);
     });
     fadeAdd.forEach((key)=>{
@@ -66,6 +96,7 @@ function postFadeMax () {
     result = {}
     $("#ranges > input").each((i, e)=>{
         ch = e.id.replace("faderange", "");
+        if (isNaN(parseInt(ch))) { return }
         result[ch] = e.value;
     });
     API_post_json("./api/config/setTargetMax", {"fadeMaxs": result});
@@ -88,7 +119,10 @@ function loadConfig(Tags) {
                         fadeMax[v] = 255;
                     }
                     else {
-                        delete keys[index];
+                        [0, 1, 2].forEach((i)=>{
+                            if (keys[index + i] === undefined) { return; }
+                            delete keys[index + i];
+                        });
                     }
                 });
                 $.each(data_ac, (i, v)=>{
